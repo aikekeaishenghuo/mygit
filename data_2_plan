@@ -1,0 +1,87 @@
+100天计划：
+加油！
+2019年11月5日：第二天
+
+1:https://www.zhihu.com/search?type=content&q=kaldi
+kaldi下面相关脚本等的介绍，以及相关算法：
+
+2：kaldi教程 http://www.360doc.com/content/15/0101/10/13208159_437287894.shtml
+
+今天正式内容：mono-phones训练过程（kaldi：steps/train_mono.sh）
+
+  a）：首先是初始化GMM，使用的脚本是/kaldi-trunk/src/gmmbin/gmm-init-mono，输出是0.mdl和tree文件；
+  b）：compile training graphs,使用的脚本是/kaldi-trunk/source/bin/compile-training-graphs，输入是tree,0.mdl和L.fst，输出是fits.JOB.gz，其是在训练过程中构建graph的过程；
+  c）：接下来是一个对齐的操作，kaldi-trunk/source/bin/align-equal-compiled；
+  d）：然后是基于GMM的声学模型进行最大似然估计得过程，脚本为/kaldi-trunk/src/gmmbin/gmm-est；
+  e）：然后进行迭代循环中进行操作，如果本步骤到了对齐的步骤，则调用脚本kaldi-kaldi/src/gmmbin/gmm-align-compiled；
+  f）：.重新估计GMM，累计状态，用脚本/kaldi-trunk/src/gmmbin/gmm-acc-states-ali；调用新生成的参数(高斯数)重新估计GMM，调用脚本/kaldi-trunk/src/gmmbin/gmm-est；
+  g）：对分散在不同处理器上的结果进行合并，生成.mdl结果，调用脚本gmm-acc-sum；
+  h）：增加高斯数，如果没有超过设定的迭代次数，则跳转到步骤5重新进行训练，最后生成的.mdl即为声学模型文件，在离线识别阶段，即可以调用utils/mkgraph.sh；来对刚刚生成的声学文件进行构图，之后解码，得到离线测试的识别率。
+
+
+******隐马尔可夫（HMM）文章通俗易懂******
+介绍HMM（https://blog.csdn.net/zxm1306192988/article/details/78595933）
+马尔科夫链：状态、初始向量、状态转移矩阵，所有的能被这样描述的系统都是一个马尔可夫过程。
+  马尔科夫链的缺陷，很明显，前后关系的缺失，带来了信息的缺失: 
+
+隐马尔可夫链：是统计模型，它用来描述一个含有隐含未知参数的马尔可夫过程。
+  其难点是从可观察的参数中确定该过程的隐含参数。然后利用这些参数来作进一步的分析，例如模式识别。
+
+隐马尔可夫（HMM）模型相关的算法主要分为三类，分别解决三种问题：
+
+     a）：知道骰子有几种（隐含状态数量），每种骰子是什么（转换概率），根据掷骰子掷出的结果（可见状态链），我想知道每次掷出来的都是哪种骰子（隐含状态链）。 在语音识别领域呢，叫做解码问题。
+     b）：还是知道骰子有几种（隐含状态数量），每种骰子是什么（转换概率），根据掷骰子掷出的结果（可见状态链），我想知道掷出这个结果的概率。 -反欺诈。
+     c）：知道骰子有几种（隐含状态数量），不知道每种骰子是什么（转换概率），观测到很多次掷骰子的结果（可见状态链），我想反推出每种骰子是什么（转换概率）。
+
+隐马尔科夫链的解决方法：
+
+     问题一：Viterbi Algo，维特比算法。
+     问题二：Forword Algorithm，向前算法，或者 Backward Algorithm，向后算法。
+     问题三：Baum-Welch Algo，鲍姆-韦尔奇算法
+
+******高斯混合模型（GMM）******
+
+
+博客：
+1.（https://blog.csdn.net/nsh119/article/details/79584629）K-Means计算出的结果是确定输入为哪一类，混合高斯模型的计算结果为输入为哪一类的概率。
+
+
+************语音识别（GMM-HMM）************
+  GMM的作用：GMM主要是为了得到HMM求解过程的发射概率。
+  HMM的作用：就是根据各个概率得到最优的音素，单词以及句子序列！
+博客：
+1：https://blog.csdn.net/nsh119/article/details/79496409
+2：https://blog.csdn.net/wbgxx333/article/details/39006885 （******这个文章需要仔细看看******）
+3：https://blog.csdn.net/wbgxx333/article/details/20479825 （还好）
+4：https://blog.csdn.net/wbgxx333/article/details/38962623 （再看看）
+5：https://blog.csdn.net/abcjennifer/article/details/27346787 
+
+
+语音识别算法介绍：
+第一种算法：
+  最大似然估计（MLE）：https://blog.csdn.net/nsh119/article/details/79623082
+  通俗的解释（https://blog.csdn.net/qq_36396104/article/details/78171600）******很好******
+  最大似然估计中采样需满足一个很重要的假设，就是所有的采样都是独立同分布的。
+  (https://blog.csdn.net/shulixu/article/details/52577934)
+  求最大似然估计量的一般步骤：
+     （1）写出似然函数；
+     （2）对似然函数取对数，并整理；
+     （3）求导数；
+     （4）解似然方程。
+  最大似然估计的特点：
+      1.比其他估计方法更加简单；
+      2.收敛性：无偏或者渐近无偏，当样本数目增加时，收敛性质会更好；
+      3.如果假设的类条件概率模型正确，则通常能获得较好的结果。但如果假设模型出现偏差，将导致非常差的估计结果。
+  顺便说一下似然函数和条件概率密度函数：
+  表示在发生的条件下的概率； 
+  表示给定，关于未知参数的函数，即似然函数L(θ)。 
+  两者想要表达的意义不是一样的，但在独立同分布模型中，两者的数值是相等的！~~~可以说求得似然函数的最大值，就是条件概率的最大值。
+
+第二种算法：
+  EM算法：（https://blog.csdn.net/nsh119/article/details/79628235）******通俗易懂******
+  EM算法是最大似然估计的拓展，是为了解决最大似然估计无法解决的参数估计，最大似然估计通过简单的求导可以得到简单模型的参数，但是对于复杂的混合模型，含有隐含数据的情况下就力不从心了。例如，单高斯模型（GSM）可以通过最大似然估计进行参数估计，但是我们随后会学习混合高斯模型（GMM），是有好多个单高斯模型混合所得，就要使用EM算法进行参数估计，样本到底属于哪一个单高斯模型就是所谓的隐含数据
+  (https://www.cnblogs.com/jerrylead/archive/2011/04/06/2006936.html)******挺好******
+
+  
+
+
