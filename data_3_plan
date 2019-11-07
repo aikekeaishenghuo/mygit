@@ -1,0 +1,59 @@
+100天计划：
+加油！
+2019年11月6日：第三天
+
+******kaldi下面训练模型等相关文件的查看及分析******
+博客：
+1：（https://www.jianshu.com/p/c5fb943afaba）
+  在进行DNN训练之前需要用到之前GMM-HMM训练的模型，以训练好的mono模型为例，对模型进行维特比alignement（对齐），该部分主要完成了每个语音文件的帧到transition-id的映射。
+  
+  a）查看对齐后的结果：
+    命令：/data/chunwei.gong/kaldi/src/bin/copy-int-vector
+    /data/chunwei.gong/kaldi/src/bin/copy-int-vector "ark:gunzip -c ali.1.gz|" ark,t:- | head -n 1
+  b）查看transition-id：
+    命令：/data/chunwei.gong/kaldi/src/bin/show-transitions
+    /data/chunwei.gong/kaldi/src/bin/show-transitions phones.txt final.mdl
+    （唯一的Transition-state对应唯一的pdf，其下又包括多个 Transition-id）
+
+  神经网络的输入和输出：
+    神经网络的输入很清楚是变换后的特征向量（feats_tr），输出是labels_tr
+
+  a）ali-to-pdf： 将上面对齐文件中的transition-id转化为对应的pdf-id.
+    命令：/data/chunwei.gong/kaldi/src/bin/ali-to-pdf
+    /data/chunwei.gong/kaldi/src/bin/ali-to-pdf final.mdl "ark:gunzip -c ali.1.gz|" ark,t:- | head -n 1
+
+  b）ali-to-post: 根据得到的pdf-id，生成[pdf, post]对，即pdf与其对应的后验概率。
+    /data/chunwei.gong/kaldi/src/bin/ali-to-pdf final.mdl "ark:gunzip -c ali.1.gz|" ark,t:- | head -n 1 |/data/chunwei.gong/kaldi/src/bin/ali-to-post ark,t:- ark,t:-
+
+  c）num_fea和num_tgt分别为神经网络的输入与输出的维度
+    输入可以直接使用feat-to-dim查看：（略）
+
+    输出维度查看：
+    命令：/data/chunwei.gong/kaldi/src/bin/hmm-info
+     /data/chunwei.gong/kaldi/src/bin/hmm-info final.mdl
+     /data/chunwei.gong/kaldi/src/bin/hmm-info final.mdl  |  grep pdfs | awk '{ print $NF }'
+
+小结
+在进行DNN训练前:
+  a）训练GMM-HMM模型，聚类，并得到音素（或状态）的后验。
+  b）对语音数据进行对齐，这里得到语音文件按时间顺序transition-id到帧特征向量的对应。
+  c）生成< pdf-id, posterior > 对作为训练目标target
+  d）语音文件特征向量进行变换，这里取前后5帧，拼成一个11帧维度更高的特征向量，作为神经网络输入。
+  e）神经网络输入变换后的特征向量，通过前向传播，经Softmax层，得到该帧特征对应每个pdf的概率预测值。
+  f）对每个pdf根据< pdf-id, posterior >查到目标后验概率，与预测值求误差
+  g）反向传播更新参数。
+  h）不断迭代，直到达到最大训练次数，或模型经过cross validation得到较低的误差（loss）停止训练。
+  解码时，用训练好的DNN-HMM模型，输入帧的特征向量，得到该帧为每个状态（对应pdf）的概率。
+（结束总结：不错写的很好的一篇博客）
+
+博客2：（https://blog.csdn.net/zjm750617105/article/details/52548798）
+  查看生成的GMM的模型，比如monophone, triphone的model。
+  命令：/data/chunwei.gong/kaldi/src/gmmbin/gmm-copy
+  /data/chunwei.gong/kaldi/src/gmmbin/gmm-copy --binary=false 0.mdl 0.txt
+（结束总结：不是很有收获）
+
+维特比算法：
+******第一篇博客******
+https://www.cnblogs.com/Renyi-Fan/p/7865985.html
+在语音(语音识别)中，声音信号作为观察到的事件序列,而文本字符串,被看作是隐含的产生声音信号的原因，因此可对声音信号应用维特比算法寻找最有可能的文本字符串。
+
