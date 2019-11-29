@@ -1,0 +1,18 @@
+新的一天从心开始！
+1）python
+Python enumerate() 函数：
+    枚举函数
+	https://www.runoob.com/python/python-func-enumerate.html
+
+2）判断字符串中是不是只有中文
+	https://www.cnblogs.com/stono/p/9102073.html
+
+3）判断字符串中是不是只有中文
+	https://www.cnblogs.com/stono/p/9102073.html
+	https://www.cnblogs.com/sirxy/p/11815169.html
+
+3）获取字符串的其中每一段
+	https://blog.csdn.net/weixin_41803874/article/details/91395492
+kaldi下面查看每句话的对齐效果
+/data/chunwei.gong/kaldi//src/bin/ali-to-phones --write-lengths model ark:ali.2 ark,t:/
+

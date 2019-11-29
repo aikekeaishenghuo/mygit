@@ -1,0 +1,17 @@
+
+1）kaldi下面有关对齐的技巧
+http://vsooda.github.io/2016/08/09/kaldi-align/
+（**这里面有很多技巧**）https://www.jianshu.com/p/3bcb106e19c7
+
+2）混乱
+https://blog.csdn.net/llearner/article/details/77549273
+
+kaldi查看对齐结果:
+方法一：
+1）将对齐的ali文件转换成文本的形式
+	/data/chunwei.gong/kaldi//src/bin/ali-to-phones ../tri1/final.mdl ark:ali.10 ark,t:/data/chunwei.gong/3.txt
+2）将上面的文件在转成phones
+	utils/int2sym.pl -f 2- data/lang/words.txt exp/mono/decode/scoring/2.tra
+方法二：（这种方法空格太多）
+	show-alignments data/lang/phones.txt exp/mono/0.mdl "ark:gunzip -c exp/mono/ali.1.gz |" | less
+
