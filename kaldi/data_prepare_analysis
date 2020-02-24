@@ -1,0 +1,8 @@
+
+
+博客：https://blog.csdn.net/llearner/article/details/77549273
+lang目录的内容
+	首先是phones.txt和words.txt的内容，这两个都是字符表文件，用OpenFst格式，每行都是文本形式 int形式组合。
+	L.fst是词典的有限状态转换器形式
+	文件L_disambig.fst是词典和上面的相比这个多了消歧符号（消除歧义符号）。
+

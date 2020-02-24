@@ -1,0 +1,9 @@
+
+https://blog.csdn.net/u014696921/article/details/74435229
+
+声纹和人脸识别都会用到以下的指标来评测：
+错误接受率：FAR（FAR，false acceptance rate）
+错误拒绝率：FRR（FRR，false rejection rate）
+ROC曲线：Receiver Operator characteristic Curve
+
+

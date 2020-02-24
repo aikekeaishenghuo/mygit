@@ -1,0 +1,13 @@
+
+一博客：
+
+HCLG.fst由四部分构成
+
+	1.G：语言模型WFST，输入输出符号相同，实际是一个WFSA（acceptor接受机），为了方便与其它三个WFST进行操作，将其视为一个输入输出相同的WFST。
+
+	2.L：发音词典WFST，输入符号：monophone，输出符号：词;
+
+	3.C:上下文相关WFST，输入符号：triphone（上下文相关），输出符号：monophnoe;
+
+	4.H:HMM声学模型WFST，输入符号：HMMtransitions-ids，输出符号：triphone。
+

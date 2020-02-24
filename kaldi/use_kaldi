@@ -15,3 +15,4 @@ kaldi查看对齐结果:
 方法二：（这种方法空格太多）
 	show-alignments data/lang/phones.txt exp/mono/0.mdl "ark:gunzip -c exp/mono/ali.1.gz |" | less
 
+kaldi下面安装g2p:https://blog.csdn.net/shanglianlm/article/details/88797529

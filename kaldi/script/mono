@@ -1,0 +1,80 @@
+
+
+聪明出于勤奋，天才在于积累~ --华罗庚
+单音素GMM-HMM模型
+	方法：Flat-start快速初始化，对齐方法是均匀对齐。
+
+	自己理解  使用flat start初始化  对说话人使用cepstral mean normalization（倒谱均值归一化）
+
+	使用倒谱均值归一化的目的是：
+		分析环境噪声的模型发现,噪声来源于背景的加性噪声和信道的卷积噪声,相应的在特征参数域用谱减和倒谱均值归一化(CMN)的方法去噪.
+	
+	kaldi下面的两个函数：apply-cmvn 和 add-deltas 
+		apply-cmvn 的输入3个文件： 
+	apply-cmvn:
+		-utt2spk=ark:sdata/JOB/utt2spk语料和录音人员关联文件scp:sdata/JOB/utt2spk语料和录音人员关联文件
+		scp:sdata/JOB/cmvn.scp 说话人相关的均值和方差 
+		scp:$sdata/JOB/feats.scp 训练用特征文件 
+		对feats.scp做归一化处理,输出是 ark:-|，利用管道技术把输出传递给下一个函数作为输入 
+	add-deltas
+		输入是ark:-，表示把上一个函数的输出作为输入（实际上就是整个训练特征数据），
+		输出  ark:- | 管道技术同上。训练数据增加差分量，比如13维度mfcc处理后变成39维度
+
+函数：gmm-init-mono 、compile-train-graphs 、align-equal-compiled 、gmm-acc-stats-ali 、gmm-est 、gmm-align-compiled 、gmm-acc-stats-ali 
+	（https://blog.csdn.net/fengzhou_/article/details/77996244）写的比较细
+	1）：gmm-init-mono
+	     	构造第一个模型文件和决策树 使用：gmm-init-mono，从特征数据中取10个特征用于构造原始模型，输出是 0.mdl tree 两个文件
+	     	模型查看命令：/data/chunwei.gong/kaldi/src/gmmbin/gmm-info final.mdl （可以看到模型的输入和输出）
+	2）：compile-train-graphs
+		根据决策树，模型，lexsionFST,text转ID这些文件，构造训练用FST，训练用每句话转换成一个FST结构，输入是音素，输出是整个句子
+		查看FST结构：
+			/src/fstbin/fstcopy 'ark:gunzip -c exp/mono0a/fsts.1.gz|' ark,t:- | head -n 20 
+			(http://www.voidcn.com/article/p-aqptafce-tk.html)
+
+ ------>3）：align-equal-compiled
+ |		对每一个训练特征做解码对齐，输出文本形式为： |	
+ |	4）：gmm-acc-stats-ali
+ |		根据对其信息，计算每个高斯分布的均值和方差，文本输出形式是： 
+ |	5）：gmm-est
+ |		模型重建，根据原始模型0.mdl 所有0.*.acc文件合并输出 1.mdl 
+ |	6）：gmm-sum-accs
+ |		完成多个文件的统计合并
+ |----->7）：gmm-align-compiled
+		和上面讲的“align-equal-compiled”类似，做特征数据的对齐，对齐信息输出到ali.JOB.gz里。对齐不是每次都做，
+		realign_iters=”1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 23 26 29 32 35 38”; x再realign_iters 时才做对齐。
+	这两个函数功能比较类似，区别是前者在真正的训练前执行一次即可，后者在训练时调用。
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+**知识更新：
+1：加性噪声：加性噪声一般指热噪声、散弹噪声等，它们与信号的关系是相加，不管有没有信号，噪声都存在。
+2：

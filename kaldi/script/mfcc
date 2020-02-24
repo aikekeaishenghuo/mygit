@@ -1,0 +1,25 @@
+
+
+make_mfcc_pitch.sh
+	 steps/make_mfcc_pitch.sh --cmd "train_cmd" --nj 10 data/x exp/make_mfcc/xmfccdir || exit 1;
+	 主要函数：
+	 	compute-mfcc-feats #mfcc特征
+		compute-kaldi-pitch-feats #pitch特征
+	特征处理的函数：
+		paste-feats
+		copy-feats
+	mfcc 特征提取：
+		src/featbin/compute-mfcc-feats --use-energy=false --verbose=2 --config=conf/mfcc.conf scp:wav.scp ark:myfeats.ark
+	
+	pitch 特征提取：
+		/data/chunwei.gong/kaldi/src/featbin/compute-kaldi-pitch-feats --verbose=2 --config=conf/pitch.conf scp:wav.scp ark:myfeats.ark
+
+	特征查看：
+		src/featbin/copy-feats ark:myfeats.ark ark,t:- | head
+	此时提取的是MFCC特征，每帧特征长度为13维。
+
+	对特征生成scp文件：
+		src/featbin/copy-feats ark:myfeats.ark ark,scp:name.ark,name.scp
+		
+
+

@@ -1,0 +1,33 @@
+
+linux下面常用命令合集
+1）linux命令dirname：
+	使用方法：dirname + $0
+	介绍网页：https://www.cnblogs.com/rohens-hbg/p/7604839.html
+2）linux命令tr:
+	使用方法：tr [-cdst][--help][--version][第一字符集][第二字符集]  
+	介绍网页：https://www.runoob.com/linux/linux-comm-tr.html
+
+3）linux命令cmp：
+	判断两个文件内容是否相同
+4）linux命令touch：
+	修改文件的时间问当前系统时间
+
+5）linux命令grep:
+	https://www.cnblogs.com/flyor/p/6411140.html
+6）linux命令彻底删除文件或者修改文件中的‘feff’
+	https://blog.csdn.net/xygl2009/article/details/98195693
+7）linux下面egrep：
+	egrep 关键字 文件
+8）linux下面awk内置变量之FNR/NR、FS/OFS、NF、ORS/RS：https://blog.csdn.net/qingsong3333/article/details/78439874
+	OFS：
+		awk '{print $1,$2}' ipb.txt 
+			Beth 4.00
+		awk 'BEGIN {OFS = ":"} {print $1, $2}' ipb.txt 
+			Beth:4.00
+9）临时环境变量设置：export PATH=$PATH:/home/chunwei.gong/bin
+
+
+10）降采样
+    
+    ffmpeg -i 源文件 -ar 8000 -ac 1 目标文件
+    sox 源文件 -r 8000 目标文件

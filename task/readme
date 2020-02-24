@@ -1,0 +1,12 @@
+
+本项目意在解决：
+	1）：如何从“脏”的数据集中挑选出“好”的数据集；
+		开始阶段：首先是kaldi下面现有脚本的解释
+		steps/cleanup/clean_and_segment_data.sh
+			第一个脚本：steps/cleanup/make_biased_lm_graphs.sh
+			第二个脚本：steps/cleanup/decode_segmentation.sh 
+			第三个脚本：steps/diagnostic/analyze_lats.sh
+			第四个脚本：steps/cleanup/lattice_oracle_align.sh
+			第五个脚本：steps/cleanup/internal/get_non_scored_words.py
+			...
+
